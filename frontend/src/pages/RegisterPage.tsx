@@ -3,10 +3,10 @@ import { register } from '../lib/api'
 import { Link, useNavigate } from 'react-router-dom'
 
 export default function RegisterPage() {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [city, setCity] = useState('')
+  const [name, setName] = useState('Set Full Name')
+  const [email, setEmail] = useState('Set Email')
+  const [password, setPassword] = useState('Set Password')
+  const [city, setCity] = useState('Enter City')
   const [role, setRole] = useState<'ADMIN' | 'USER'>('USER')
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
