@@ -27,8 +27,8 @@ export default function LoginPage() {
     <div className="card">
       <h2>Login</h2>
       <form onSubmit={onSubmit} className="form">
-        <label>Email<input value={email} onChange={e => setEmail(e.target.value)} type="email" required /></label>
-        <label>Password<input value={password} onChange={e => setPassword(e.target.value)} type="password" required /></label>
+  <label>Email<input value={email} placeholder="Enter your email" onChange={e => setEmail(e.target.value)} type="email" required /></label>
+  <label>Password<input value={password} placeholder="Enter your password" onChange={e => setPassword(e.target.value)} type="password" required /></label>
         {error && <div className="error">{error}</div>}
         <button className="btn" type="submit">Login</button>
       </form>

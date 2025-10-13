@@ -10,7 +10,7 @@ export default function Navbar() {
   }
   return (
     <nav className="nav">
-      <div className="brand">SecureMgmt</div>
+      <div className="brand">SecureManagement</div>
       <div className="links">
         {!token && (
           <>
