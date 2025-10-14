@@ -29,6 +29,17 @@ public class ManagementController {
         return ResponseEntity.ok(userManagementService.refreshToken(req));
     }
 
+    @GetMapping("/manager/get-all-users")
+    public ResponseEntity<JSONRequestResponse> managerGetAllUsers(){
+        return ResponseEntity.ok(userManagementService.getAllUsers());
+
+    }
+
+    @PutMapping("/manager/update/{userId}")
+    public ResponseEntity<JSONRequestResponse> updateManagerUser(@PathVariable Integer userId, @RequestBody OtherUserRepo reqres){
+        return ResponseEntity.ok(userManagementService.updateManagerUser(userId, reqres));
+    }
+
     @GetMapping("/admin/get-all-users")
     public ResponseEntity<JSONRequestResponse> getAllUsers(){
         return ResponseEntity.ok(userManagementService.getAllUsers());
@@ -58,6 +69,7 @@ public class ManagementController {
     public ResponseEntity<JSONRequestResponse> deleteUSer(@PathVariable Integer userId){
         return ResponseEntity.ok(userManagementService.deleteUser(userId));
     }
+
 
 
 }
