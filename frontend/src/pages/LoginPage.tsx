@@ -7,19 +7,28 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
   const { setToken, setRole } = useAuth()
   const navigate = useNavigate()
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (loading) return
     setError(null)
-    const res = await login({ email, password })
-    if (res.statusCode === 200 && res.token) {
-      setToken(res.token)
-      if (res.role) setRole(res.role)
-      navigate('/profile')
-    } else {
-      setError(res.message || 'Login failed')
+    setLoading(true)
+    try {
+      const res = await login({ email, password })
+      if (res.statusCode === 200 && res.token) {
+        setToken(res.token)
+        if (res.role) setRole(res.role)
+        navigate('/profile')
+      } else {
+        setError(res.message || 'Login failed')
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Network error. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -30,7 +39,7 @@ export default function LoginPage() {
   <label>Email<input value={email} placeholder="Enter your email" onChange={e => setEmail(e.target.value)} type="email" required /></label>
   <label>Password<input value={password} placeholder="Enter your password" onChange={e => setPassword(e.target.value)} type="password" required /></label>
         {error && <div className="error">{error}</div>}
-        <button className="btn" type="submit">Login</button>
+        <button className="btn" type="submit" disabled={loading}>{loading ? 'Logging in…' : 'Login'}</button>
       </form>
       <p>No account? <Link to="/register">Register</Link></p>
     </div>

@@ -9,16 +9,25 @@ export default function RegisterPage() {
   const [city, setCity] = useState('')
   const [role, setRole] = useState<'ADMIN' | 'USER'>('USER')
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (loading) return
     setError(null)
-    const res = await register({ name, email, password, city, role })
-    if (res.statusCode === 200) {
-      navigate('/login')
-    } else {
-      setError(res.message || 'Registration failed')
+    setLoading(true)
+    try {
+      const res = await register({ name, email, password, city, role })
+      if (res.statusCode === 200) {
+        navigate('/login')
+      } else {
+        setError(res.message || 'Registration failed')
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Network error. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -37,7 +46,7 @@ export default function RegisterPage() {
           </select>
         </label>
         {error && <div className="error">{error}</div>}
-        <button className="btn" type="submit">Create account</button>
+        <button className="btn" type="submit" disabled={loading}>{loading ? 'Creating…' : 'Create account'}</button>
       </form>
       <p>Have an account? <Link to="/login">Login</Link></p>
     </div>

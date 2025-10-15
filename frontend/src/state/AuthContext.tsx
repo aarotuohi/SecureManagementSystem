@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import type { Role } from '../lib/api'
 
 type AuthState = {
   token: string | null
-  role: 'ADMIN' | 'USER' | null
+  role: Role | null
   setToken: (v: string | null) => void
-  setRole: (r: 'ADMIN' | 'USER' | null) => void
+  setRole: (r: Role | null) => void
   logout: () => void
 }
 
@@ -12,7 +13,7 @@ const Ctx = createContext<AuthState | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'))
-  const [role, setRole] = useState<'ADMIN' | 'USER' | null>(() => (localStorage.getItem('role') as any) || null)
+  const [role, setRole] = useState<Role | null>(() => (localStorage.getItem('role') as Role | null))
 
   useEffect(() => {
     if (token) localStorage.setItem('token', token)
