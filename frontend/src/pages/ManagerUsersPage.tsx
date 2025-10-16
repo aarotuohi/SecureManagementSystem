@@ -46,6 +46,7 @@ export default function ManagerUsersPage() {
             <th>Email</th>
             <th>City</th>
             <th>Role</th>
+            <th>Organization</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -67,6 +68,7 @@ export default function ManagerUsersPage() {
                   </select>
                 ) : u.role}
                 </td>
+                <td>{e ? <input value={e.organization || ''} onChange={ev => setField(u.id, 'organization', ev.target.value)} /> : (u.organization || '-')}</td>
                 <td>
                   {e ? (
                     <>

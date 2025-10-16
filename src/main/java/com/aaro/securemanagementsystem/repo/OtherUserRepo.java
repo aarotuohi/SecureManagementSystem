@@ -22,6 +22,7 @@ public class OtherUserRepo implements UserDetails {
     private String password;
     private String city;
     private String role;
+    private String organization;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

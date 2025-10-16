@@ -36,6 +36,7 @@ public class UserManagementService {
             ourUser.setEmail(registrationRequest.getEmail());
             ourUser.setCity(registrationRequest.getCity());
             ourUser.setRole(registrationRequest.getRole());
+            ourUser.setOrganization(registrationRequest.getOrganization());
             ourUser.setName(registrationRequest.getName());
             ourUser.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
             OtherUserRepo ourUsersResult = usersRepo.save(ourUser);
@@ -170,6 +171,7 @@ public class UserManagementService {
                 existingUser.setName(updatedUser.getName());
                 existingUser.setCity(updatedUser.getCity());
                 existingUser.setRole(updatedUser.getRole());
+                existingUser.setOrganization(updatedUser.getOrganization());
 
                 // Check if password is present in the request
                 if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {

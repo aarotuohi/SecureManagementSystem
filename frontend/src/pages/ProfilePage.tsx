@@ -27,6 +27,7 @@ export default function ProfilePage() {
           <li><strong>Name:</strong> {user.name}</li>
           <li><strong>Email:</strong> {user.email}</li>
           <li><strong>City:</strong> {user.city}</li>
+          <li><strong>Organization:</strong> {user.organization || '-'}</li>
           <li><strong>Role:</strong> {user.role}</li>
         </ul>
       )}

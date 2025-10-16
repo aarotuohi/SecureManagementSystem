@@ -7,6 +7,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [city, setCity] = useState('')
+  const [organization, setOrganization] = useState('')
   const [role, setRole] = useState<'ADMIN' | 'USER'>('USER')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -18,7 +19,7 @@ export default function RegisterPage() {
     setError(null)
     setLoading(true)
     try {
-      const res = await register({ name, email, password, city, role })
+  const res = await register({ name, email, password, city, organization: organization || undefined, role })
       if (res.statusCode === 200) {
         navigate('/login')
       } else {
@@ -39,6 +40,7 @@ export default function RegisterPage() {
   <label>Email<input value={email} placeholder="Enter your email" onChange={e => setEmail(e.target.value)} type="email" required /></label>
   <label>Password<input value={password} placeholder="Create a password" onChange={e => setPassword(e.target.value)} type="password" required /></label>
   <label>City<input value={city} placeholder="Enter your city" onChange={e => setCity(e.target.value)} /></label>
+  <label>Organization / Business<input value={organization} placeholder="Enter organization or business" onChange={e => setOrganization(e.target.value)} /></label>
         <label>Role
           <select value={role} onChange={e => setRole(e.target.value as 'ADMIN' | 'USER')}>
             <option value="USER">USER</option>

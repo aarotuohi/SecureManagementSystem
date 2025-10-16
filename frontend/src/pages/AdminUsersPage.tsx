@@ -28,6 +28,7 @@ export default function AdminUsersPage() {
             <th>Name</th>
             <th>Email</th>
             <th>City</th>
+            <th>Organization</th>
             <th>Role</th>
           </tr>
         </thead>
@@ -38,6 +39,7 @@ export default function AdminUsersPage() {
               <td>{u.name}</td>
               <td>{u.email}</td>
               <td>{u.city}</td>
+              <td>{u.organization || '-'}</td>
               <td>{u.role}</td>
             </tr>
           ))}

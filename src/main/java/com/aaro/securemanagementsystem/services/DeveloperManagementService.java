@@ -68,6 +68,7 @@ public class DeveloperManagementService {
                 existingUser.setName(updatedUser.getName());
                 existingUser.setCity(updatedUser.getCity());
                 existingUser.setRole(updatedUser.getRole());
+                existingUser.setOrganization(updatedUser.getOrganization());
 
                 if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
                     existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));

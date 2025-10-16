@@ -21,6 +21,7 @@ public class JSONRequestResponse {
     private String name;
     private String city;
     private String role;
+    private String organization;
     private String email;
     private String password;
     private OtherUserRepo ourUsers;
