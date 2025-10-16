@@ -39,11 +39,23 @@ const jsonHeaders = (token?: string) => ({
 async function fetchJson<T = any>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
   const res = await fetch(input, init)
   const ct = res.headers.get('content-type') || ''
+  if (!res.ok) {
+    if (ct.includes('application/json')) {
+      try {
+        const data: any = await res.json()
+        const msg = data?.message || data?.error || ''
+        throw new Error(msg ? `${res.status} ${res.statusText} - ${msg}` : `${res.status} ${res.statusText}`)
+      } catch {
+        throw new Error(`${res.status} ${res.statusText}`)
+      }
+    }
+    const text = await res.text()
+    throw new Error(`Unexpected response (${res.status} ${res.statusText}). ${text.slice(0, 200)}`)
+  }
   if (ct.includes('application/json')) {
     return res.json() as Promise<T>
   }
-  const text = await res.text()
-  throw new Error(`Unexpected response (${res.status} ${res.statusText}). ${text.slice(0, 200)}`)
+  throw new Error(`Unexpected response (${res.status} ${res.statusText}).`)
 }
 
 export async function login(body: LoginRequest): Promise<AuthResponse> {
@@ -101,5 +113,27 @@ export async function updateDeveloperUser(token: string, userId: number, body: U
     method: 'PUT',
     headers: jsonHeaders(token),
     body: JSON.stringify(body),
+  })
+}
+
+export async function adminCreateUser(token: string, body: { name: string; email: string; password: string; city?: string; organization?: string; role: Role }) {
+  return fetchJson<{ statusCode: number; message?: string; ourUsers?: User }>(`${API_BASE}/admin/create`, {
+    method: 'POST',
+    headers: jsonHeaders(token),
+    body: JSON.stringify(body),
+  })
+}
+
+export async function createBusiness(token: string, name: string, description?: string) {
+  return fetchJson<{ statusCode: number; message?: string }>(`${API_BASE}/business/create`, {
+    method: 'POST',
+    headers: jsonHeaders(token),
+    body: JSON.stringify({ name, message: description ?? '' }),
+  })
+}
+
+export async function getMyBusiness(token: string) {
+  return fetchJson<{ statusCode: number; message?: string }>(`${API_BASE}/business/my`, {
+    headers: jsonHeaders(token),
   })
 }

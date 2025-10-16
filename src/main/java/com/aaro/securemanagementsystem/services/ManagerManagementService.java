@@ -4,6 +4,8 @@ import com.aaro.securemanagementsystem.controller.JSONRequestResponse;
 import com.aaro.securemanagementsystem.repo.OtherUserRepo;
 import com.aaro.securemanagementsystem.repo.UsersRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -62,7 +64,11 @@ public class ManagerManagementService {
         JSONRequestResponse reqRes = new JSONRequestResponse();
 
         try {
-            List<OtherUserRepo> result = usersRepo.findByRole(ROLE);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            OtherUserRepo me = usersRepo.findByEmail(auth.getName()).orElse(null);
+            List<OtherUserRepo> result = (me != null && me.getBusiness() != null)
+                ? usersRepo.findByRoleAndBusiness_Id(ROLE, me.getBusiness().getId())
+                : usersRepo.findByRole(ROLE);
             if (!result.isEmpty()) {
                 reqRes.setOurUsersList(result);
                 reqRes.setStatusCode(200);
@@ -82,7 +88,11 @@ public class ManagerManagementService {
     public JSONRequestResponse updateManagerUser(Integer userId, OtherUserRepo updatedUser) {
         JSONRequestResponse reqRes = new JSONRequestResponse();
         try {
-            Optional<OtherUserRepo> userOptional = usersRepo.findById(userId);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            OtherUserRepo me = usersRepo.findByEmail(auth.getName()).orElse(null);
+            Optional<OtherUserRepo> userOptional = (me != null && me.getBusiness() != null)
+                ? usersRepo.findByIdAndBusiness_Id(userId, me.getBusiness().getId())
+                : usersRepo.findById(userId);
             if (userOptional.isPresent()) {
                 OtherUserRepo existingUser = userOptional.get();
                 existingUser.setEmail(updatedUser.getEmail());

@@ -8,6 +8,8 @@ import com.aaro.securemanagementsystem.repo.UsersRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,40 @@ public class UserManagementService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private OtherUserRepo currentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return usersRepo.findByEmail(auth.getName()).orElse(null);
+    }
+    public JSONRequestResponse adminCreateUser(JSONRequestResponse req) {
+        JSONRequestResponse resp = new JSONRequestResponse();
+        try {
+            OtherUserRepo me = currentUser();
+            OtherUserRepo user = new OtherUserRepo();
+            user.setEmail(req.getEmail());
+            user.setName(req.getName());
+            user.setCity(req.getCity());
+            user.setOrganization(req.getOrganization());
+            user.setRole(req.getRole());
+            if (req.getPassword() == null || req.getPassword().isEmpty()) {
+                resp.setStatusCode(400);
+                resp.setMessage("Password is required");
+                return resp;
+            }
+            user.setPassword(passwordEncoder.encode(req.getPassword()));
+            if (me != null && me.getBusiness() != null) {
+                user.setBusiness(me.getBusiness());
+            }
+            OtherUserRepo saved = usersRepo.save(user);
+            resp.setOurUsers(saved);
+            resp.setStatusCode(200);
+            resp.setMessage("User created successfully");
+        } catch (Exception e) {
+            resp.setStatusCode(500);
+            resp.setMessage("Error creating user: " + e.getMessage());
+        }
+        return resp;
+    }
 
 
     public JSONRequestResponse register(JSONRequestResponse registrationRequest){
@@ -109,7 +145,10 @@ public class UserManagementService {
         JSONRequestResponse reqRes = new JSONRequestResponse();
 
         try {
-            List<OtherUserRepo> result = usersRepo.findAll();
+            OtherUserRepo me = currentUser();
+            List<OtherUserRepo> result = (me != null && me.getBusiness() != null)
+                ? usersRepo.findAllByBusiness_Id(me.getBusiness().getId())
+                : usersRepo.findAll();
             if (!result.isEmpty()) {
                 reqRes.setOurUsersList(result);
                 reqRes.setStatusCode(200);
@@ -130,7 +169,10 @@ public class UserManagementService {
     public JSONRequestResponse getUsersById(Integer id) {
         JSONRequestResponse reqRes = new JSONRequestResponse();
         try {
-            OtherUserRepo usersById = usersRepo.findById(id).orElseThrow(() -> new RuntimeException("User Not found"));
+            OtherUserRepo me = currentUser();
+            OtherUserRepo usersById = (me != null && me.getBusiness() != null)
+                ? usersRepo.findByIdAndBusiness_Id(id, me.getBusiness().getId()).orElseThrow(() -> new RuntimeException("User Not found"))
+                : usersRepo.findById(id).orElseThrow(() -> new RuntimeException("User Not found"));
             reqRes.setOurUsers(usersById);
             reqRes.setStatusCode(200);
             reqRes.setMessage("Users with id '" + id + "' found successfully");
@@ -145,7 +187,10 @@ public class UserManagementService {
     public JSONRequestResponse deleteUser(Integer userId) {
         JSONRequestResponse reqRes = new JSONRequestResponse();
         try {
-            Optional<OtherUserRepo> userOptional = usersRepo.findById(userId);
+            OtherUserRepo me = currentUser();
+            Optional<OtherUserRepo> userOptional = (me != null && me.getBusiness() != null)
+                ? usersRepo.findByIdAndBusiness_Id(userId, me.getBusiness().getId())
+                : usersRepo.findById(userId);
             if (userOptional.isPresent()) {
                 usersRepo.deleteById(userId);
                 reqRes.setStatusCode(200);
@@ -164,7 +209,10 @@ public class UserManagementService {
     public JSONRequestResponse updateUser(Integer userId, OtherUserRepo updatedUser) {
         JSONRequestResponse reqRes = new JSONRequestResponse();
         try {
-            Optional<OtherUserRepo> userOptional = usersRepo.findById(userId);
+            OtherUserRepo me = currentUser();
+            Optional<OtherUserRepo> userOptional = (me != null && me.getBusiness() != null)
+                ? usersRepo.findByIdAndBusiness_Id(userId, me.getBusiness().getId())
+                : usersRepo.findById(userId);
             if (userOptional.isPresent()) {
                 OtherUserRepo existingUser = userOptional.get();
                 existingUser.setEmail(updatedUser.getEmail());

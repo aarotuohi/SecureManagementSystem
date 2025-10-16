@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import com.aaro.securemanagementsystem.models.Business;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,6 +24,10 @@ public class OtherUserRepo implements UserDetails {
     private String city;
     private String role;
     private String organization;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "business_id")
+    private Business business;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -5,6 +5,7 @@ import com.aaro.securemanagementsystem.repo.OtherUserRepo;
 import com.aaro.securemanagementsystem.services.UserManagementService;
 import com.aaro.securemanagementsystem.services.ManagerManagementService;
 import com.aaro.securemanagementsystem.services.DeveloperManagementService;
+import com.aaro.securemanagementsystem.services.BusinessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,6 +21,8 @@ public class ManagementController {
     private ManagerManagementService managerManagementService;
     @Autowired
     private DeveloperManagementService developerManagementService;
+    @Autowired
+    private BusinessService businessService;
 
     @PostMapping("/auth/register")
     public ResponseEntity<JSONRequestResponse> register(@RequestBody JSONRequestResponse reg){
@@ -75,6 +78,11 @@ public class ManagementController {
         return ResponseEntity.ok(userManagementService.updateUser(userId, reqres));
     }
 
+    @PostMapping("/admin/create")
+    public ResponseEntity<JSONRequestResponse> adminCreate(@RequestBody JSONRequestResponse req){
+        return ResponseEntity.ok(userManagementService.adminCreateUser(req));
+    }
+
     @GetMapping("/adminuser/get-profile")
     public ResponseEntity<JSONRequestResponse> getMyProfile(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -86,6 +94,36 @@ public class ManagementController {
     @DeleteMapping("/admin/delete/{userId}")
     public ResponseEntity<JSONRequestResponse> deleteUSer(@PathVariable Integer userId){
         return ResponseEntity.ok(userManagementService.deleteUser(userId));
+    }
+
+    @PostMapping("/business/create")
+    public ResponseEntity<JSONRequestResponse> createBusiness(@RequestBody JSONRequestResponse req){
+        return ResponseEntity.ok(businessService.createBusiness(req));
+    }
+
+    @GetMapping("/business/my")
+    public ResponseEntity<JSONRequestResponse> getMyBusiness(){
+        return ResponseEntity.ok(businessService.getMyBusiness());
+    }
+
+    @GetMapping("/business")
+    public ResponseEntity<JSONRequestResponse> listBusinesses(){
+        return ResponseEntity.ok(businessService.listMyBusinesses());
+    }
+
+    @GetMapping("/business/{businessId}")
+    public ResponseEntity<JSONRequestResponse> businessDetails(@PathVariable Integer businessId){
+        return ResponseEntity.ok(businessService.businessDetails(businessId));
+    }
+
+    @GetMapping("/business/{businessId}/users")
+    public ResponseEntity<JSONRequestResponse> usersInBusiness(@PathVariable Integer businessId){
+        return ResponseEntity.ok(businessService.usersInBusiness(businessId));
+    }
+
+    @GetMapping("/business/my/users")
+    public ResponseEntity<JSONRequestResponse> usersInMyBusiness(){
+        return ResponseEntity.ok(businessService.usersInMyBusiness());
     }
 
 

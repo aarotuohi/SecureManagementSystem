@@ -10,4 +10,10 @@ public interface UsersRepo extends JpaRepository<OtherUserRepo, Integer> {
     Optional<OtherUserRepo> findByEmail(String email);
 
     List<OtherUserRepo> findByRole(String role);
+
+    List<OtherUserRepo> findAllByBusiness_Id(Integer businessId);
+
+    List<OtherUserRepo> findByRoleAndBusiness_Id(String role, Integer businessId);
+
+    Optional<OtherUserRepo> findByIdAndBusiness_Id(Integer id, Integer businessId);
 }

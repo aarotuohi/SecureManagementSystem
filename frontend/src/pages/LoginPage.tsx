@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react'
-import { login } from '../lib/api'
+import { getMyProfile, login } from '../lib/api'
 import { useAuth } from '../state/AuthContext'
 import { useNavigate, Link } from 'react-router-dom'
 
@@ -8,7 +8,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const { setToken, setRole } = useAuth()
+  const { setToken, setRole, setUser } = useAuth()
   const navigate = useNavigate()
 
   const onSubmit = async (e: FormEvent) => {
@@ -21,6 +21,10 @@ export default function LoginPage() {
       if (res.statusCode === 200 && res.token) {
         setToken(res.token)
         if (res.role) setRole(res.role)
+        try {
+          const prof = await getMyProfile(res.token)
+          if (prof.statusCode === 200 && prof.ourUsers) setUser(prof.ourUsers)
+        } catch {}
         navigate('/profile')
       } else {
         setError(res.message || 'Login failed')

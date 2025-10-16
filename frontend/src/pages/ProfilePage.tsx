@@ -3,15 +3,14 @@ import { getMyProfile, User } from '../lib/api'
 import { useAuth } from '../state/AuthContext'
 
 export default function ProfilePage() {
-  const { token } = useAuth()
-  const [user, setUser] = useState<User | null>(null)
+  const { token, user, setUser } = useAuth()
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
       if (!token) return
       const res = await getMyProfile(token)
-      if (res.statusCode === 200 && res.ourUsers) setUser(res.ourUsers)
+  if (res.statusCode === 200 && res.ourUsers) setUser(res.ourUsers)
       else setError(res.message || 'Failed to load')
     }
     load()

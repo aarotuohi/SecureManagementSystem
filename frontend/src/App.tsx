@@ -5,6 +5,7 @@ import ProfilePage from './pages/ProfilePage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import ManagerUsersPage from './pages/ManagerUsersPage'
 import DeveloperUsersPage from './pages/DeveloperUsersPage'
+import AdminBusinessPage from './pages/AdminBusinessPage'
 import { useAuth } from './state/AuthContext'
 import Navbar from './components/Navbar'
 
@@ -50,6 +51,14 @@ export default function App() {
             element={
               <AdminRoute>
                 <AdminUsersPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/business"
+            element={
+              <AdminRoute>
+                <AdminBusinessPage />
               </AdminRoute>
             }
           />
