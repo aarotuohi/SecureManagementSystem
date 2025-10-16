@@ -116,7 +116,7 @@ export async function updateDeveloperUser(token: string, userId: number, body: U
   })
 }
 
-export async function adminCreateUser(token: string, body: { name: string; email: string; password: string; city?: string; organization?: string; role: Role }) {
+export async function adminCreateUser(token: string, body: { name: string; email: string; password?: string; city?: string; organization?: string; role: Role }) {
   return fetchJson<{ statusCode: number; message?: string; ourUsers?: User }>(`${API_BASE}/admin/create`, {
     method: 'POST',
     headers: jsonHeaders(token),

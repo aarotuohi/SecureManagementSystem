@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserManagementService {
@@ -43,12 +44,10 @@ public class UserManagementService {
             user.setCity(req.getCity());
             user.setOrganization(req.getOrganization());
             user.setRole(req.getRole());
-            if (req.getPassword() == null || req.getPassword().isEmpty()) {
-                resp.setStatusCode(400);
-                resp.setMessage("Password is required");
-                return resp;
-            }
-            user.setPassword(passwordEncoder.encode(req.getPassword()));
+            String rawPassword = (req.getPassword() == null || req.getPassword().isBlank())
+                    ? UUID.randomUUID().toString().replace("-", "").substring(0, 12)
+                    : req.getPassword();
+            user.setPassword(passwordEncoder.encode(rawPassword));
             if (me != null && me.getBusiness() != null) {
                 user.setBusiness(me.getBusiness());
             }

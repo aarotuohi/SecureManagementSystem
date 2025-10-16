@@ -17,7 +17,7 @@ export default function AdminBusinessPage() {
   const [users, setUsers] = useState<any[]>([])
   const [userError, setUserError] = useState<string | null>(null)
   const [creatingUser, setCreatingUser] = useState(false)
-  const [userForm, setUserForm] = useState<{name: string; email: string; password: string; city: string; organization: string; role: Role}>({ name: '', email: '', password: '', city: '', organization: '', role: 'USER' })
+  const [userForm, setUserForm] = useState<{name: string; email: string; city: string; organization: string; role: Role}>({ name: '', email: '', city: '', organization: '', role: 'USER' })
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -67,7 +67,6 @@ export default function AdminBusinessPage() {
                 <div className="form" style={{ display: 'grid', gap: 8 }}>
                   <label>Name<input value={userForm.name} onChange={e => setUserForm({ ...userForm, name: e.target.value })} placeholder="Name" /></label>
                   <label>Email<input value={userForm.email} onChange={e => setUserForm({ ...userForm, email: e.target.value })} placeholder="Email" type="email" /></label>
-                  <label>Password<input value={userForm.password} onChange={e => setUserForm({ ...userForm, password: e.target.value })} placeholder="Password" type="password" /></label>
                   <label>City<input value={userForm.city} onChange={e => setUserForm({ ...userForm, city: e.target.value })} placeholder="City" /></label>
                   <label>Organization<input value={userForm.organization} onChange={e => setUserForm({ ...userForm, organization: e.target.value })} placeholder="Organization / Business" /></label>
                   <label>Role
@@ -84,7 +83,7 @@ export default function AdminBusinessPage() {
                       setCreatingUser(true)
                       setUserError(null)
                       try {
-                        const res = await adminCreateUser(token, { ...userForm, city: userForm.city || undefined, organization: userForm.organization || undefined })
+                        const res = await adminCreateUser(token, { ...userForm, city: userForm.city || undefined, organization: userForm.organization || undefined } as any)
                         if (res.statusCode === 200 && res.ourUsers) {
                           // reload list so user appears in correct category and reflects server-side scoping
                           try {
@@ -94,7 +93,7 @@ export default function AdminBusinessPage() {
                               setUsers(Array.isArray(data.ourUsersList) ? data.ourUsersList : [])
                             }
                           } catch {}
-                          setUserForm({ name: '', email: '', password: '', city: '', organization: '', role: 'USER' })
+                          setUserForm({ name: '', email: '', city: '', organization: '', role: 'USER' })
                         } else {
                           setUserError(res.message || 'Create failed')
                         }
