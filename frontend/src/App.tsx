@@ -3,6 +3,9 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
 import AdminUsersPage from './pages/AdminUsersPage'
+import ManagerUsersPage from './pages/ManagerUsersPage'
+import DeveloperUsersPage from './pages/DeveloperUsersPage'
+import AdminBusinessPage from './pages/AdminBusinessPage'
 import { useAuth } from './state/AuthContext'
 import Navbar from './components/Navbar'
 
@@ -14,6 +17,16 @@ function PrivateRoute({ children }: { children: JSX.Element }) {
 function AdminRoute({ children }: { children: JSX.Element }) {
   const { token, role } = useAuth()
   return token && role === 'ADMIN' ? children : <Navigate to="/" replace />
+}
+
+function ManagerRoute({ children }: { children: JSX.Element }) {
+  const { token, role } = useAuth()
+  return token && (role === 'MANAGER' || role === 'ADMIN') ? children : <Navigate to="/" replace />
+}
+
+function DeveloperRoute({ children }: { children: JSX.Element }) {
+  const { token, role } = useAuth()
+  return token && (role === 'DEVELOPER' || role === 'ADMIN') ? children : <Navigate to="/" replace />
 }
 
 export default function App() {
@@ -39,6 +52,30 @@ export default function App() {
               <AdminRoute>
                 <AdminUsersPage />
               </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/business"
+            element={
+              <AdminRoute>
+                <AdminBusinessPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/manager/users"
+            element={
+              <ManagerRoute>
+                <ManagerUsersPage />
+              </ManagerRoute>
+            }
+          />
+          <Route
+            path="/developer/users"
+            element={
+              <DeveloperRoute>
+                <DeveloperUsersPage />
+              </DeveloperRoute>
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -4,6 +4,8 @@ import com.aaro.securemanagementsystem.controller.JSONRequestResponse;
 import com.aaro.securemanagementsystem.repo.OtherUserRepo;
 import com.aaro.securemanagementsystem.repo.UsersRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +25,11 @@ public class DeveloperManagementService {
     public JSONRequestResponse getAllDevelopers() {
         JSONRequestResponse res = new JSONRequestResponse();
         try {
-            List<OtherUserRepo> devs = usersRepo.findByRole(ROLE);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            OtherUserRepo me = usersRepo.findByEmail(auth.getName()).orElse(null);
+            List<OtherUserRepo> devs = (me != null && me.getBusiness() != null)
+                ? usersRepo.findByRoleAndBusiness_Id(ROLE, me.getBusiness().getId())
+                : usersRepo.findByRole(ROLE);
             if (devs.isEmpty()) {
                 res.setStatusCode(404);
                 res.setMessage("No developers found");
@@ -61,13 +67,18 @@ public class DeveloperManagementService {
     public JSONRequestResponse updateDeveloperUser(Integer userId, OtherUserRepo updatedUser) {
         JSONRequestResponse reqRes = new JSONRequestResponse();
         try {
-            Optional<OtherUserRepo> userOptional = usersRepo.findById(userId);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            OtherUserRepo me = usersRepo.findByEmail(auth.getName()).orElse(null);
+            Optional<OtherUserRepo> userOptional = (me != null && me.getBusiness() != null)
+                ? usersRepo.findByIdAndBusiness_Id(userId, me.getBusiness().getId())
+                : usersRepo.findById(userId);
             if (userOptional.isPresent()) {
                 OtherUserRepo existingUser = userOptional.get();
                 existingUser.setEmail(updatedUser.getEmail());
                 existingUser.setName(updatedUser.getName());
                 existingUser.setCity(updatedUser.getCity());
                 existingUser.setRole(updatedUser.getRole());
+                existingUser.setOrganization(updatedUser.getOrganization());
 
                 if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
                     existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));

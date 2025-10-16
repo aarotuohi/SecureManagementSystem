@@ -21,7 +21,7 @@ export default function Navbar() {
         {token && (
           <>
             <Link to="/profile">My Profile</Link>
-            {role === 'ADMIN' && <Link to="/admin/users">Users</Link>}
+            <Link to="/admin/business">Business</Link>
             <button onClick={onLogout} className="btn">Logout</button>
           </>
         )}
