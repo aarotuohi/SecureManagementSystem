@@ -23,6 +23,18 @@ public class BusinessService {
     public JSONRequestResponse createBusiness(JSONRequestResponse req) {
         JSONRequestResponse res = new JSONRequestResponse();
         try {
+            Authentication authCheck = SecurityContextHolder.getContext().getAuthentication();
+            if (authCheck == null || authCheck.getName() == null) {
+                res.setStatusCode(401);
+                res.setMessage("Unauthorized");
+                return res;
+            }
+            Optional<OtherUserRepo> currentOpt = usersRepo.findByEmail(authCheck.getName());
+            if (currentOpt.isEmpty() || currentOpt.get().getRole() == null || !"ADMIN".equalsIgnoreCase(currentOpt.get().getRole())) {
+                res.setStatusCode(403);
+                res.setMessage("Forbidden: Only admins can create a business.");
+                return res;
+            }
             if (req.getName() == null || req.getName().isEmpty()) {
                 res.setStatusCode(400);
                 res.setMessage("Business name is required");

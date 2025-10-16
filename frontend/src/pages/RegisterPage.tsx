@@ -1,8 +1,10 @@
 import { FormEvent, useState } from 'react'
 import { register } from '../lib/api'
+import { useAuth } from '../state/AuthContext'
 import { Link, useNavigate } from 'react-router-dom'
 
 export default function RegisterPage() {
+  const { setUser } = useAuth()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -21,6 +23,11 @@ export default function RegisterPage() {
     try {
   const res = await register({ name, email, password, city, organization: organization || undefined, role })
       if (res.statusCode === 200) {
+        // Optional: prefill user cache so profile info is present before first login
+        // Server doesn't return password/token here; it's safe to cache non-sensitive fields.
+        try {
+          if ((res as any).ourUsers) setUser((res as any).ourUsers)
+        } catch {}
         navigate('/login')
       } else {
         setError(res.message || 'Registration failed')
