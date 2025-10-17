@@ -20,38 +20,21 @@ public class ManagerManagementService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private static final String ROLE = "MANAGER";
-
-    public JSONRequestResponse getAllManagers() {
-        JSONRequestResponse res = new JSONRequestResponse();
-        try {
-            List<OtherUserRepo> managers = usersRepo.findByRole(ROLE);
-            if (managers.isEmpty()) {
-                res.setStatusCode(404);
-                res.setMessage("No managers found");
-            } else {
-                res.setOurUsersList(managers);
-                res.setStatusCode(200);
-                res.setMessage("Successful");
-            }
-        } catch (Exception e) {
-            res.setStatusCode(500);
-            res.setMessage("Error occurred: " + e.getMessage());
-        }
-        return res;
-    }
-
     public JSONRequestResponse getManagerById(Integer id) {
         JSONRequestResponse res = new JSONRequestResponse();
         try {
-            Optional<OtherUserRepo> user = usersRepo.findById(id);
-            if (user.isPresent() && ROLE.equals(user.get().getRole())) {
+            var auth = SecurityContextHolder.getContext().getAuthentication();
+            OtherUserRepo me = usersRepo.findByEmail(auth.getName()).orElse(null);
+            Optional<OtherUserRepo> user = (me != null && me.getBusiness() != null)
+                ? usersRepo.findByIdAndBusiness_Id(id, me.getBusiness().getId())
+                : usersRepo.findById(id);
+            if (user.isPresent()) {
                 res.setOurUsers(user.get());
                 res.setStatusCode(200);
-                res.setMessage("Manager found");
+                res.setMessage("Member found");
             } else {
                 res.setStatusCode(404);
-                res.setMessage("Manager not found");
+                res.setMessage("Member not found");
             }
         } catch (Exception e) {
             res.setStatusCode(500);
@@ -67,15 +50,15 @@ public class ManagerManagementService {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             OtherUserRepo me = usersRepo.findByEmail(auth.getName()).orElse(null);
             List<OtherUserRepo> result = (me != null && me.getBusiness() != null)
-                ? usersRepo.findByRoleAndBusiness_Id(ROLE, me.getBusiness().getId())
-                : usersRepo.findByRole(ROLE);
+                ? usersRepo.findAllByBusiness_Id(me.getBusiness().getId())
+                : usersRepo.findAll();
             if (!result.isEmpty()) {
                 reqRes.setOurUsersList(result);
                 reqRes.setStatusCode(200);
                 reqRes.setMessage("Successful");
             } else {
                 reqRes.setStatusCode(404);
-                reqRes.setMessage("No manager users found");
+                reqRes.setMessage("No members found");
             }
             return reqRes;
         } catch (Exception e) {

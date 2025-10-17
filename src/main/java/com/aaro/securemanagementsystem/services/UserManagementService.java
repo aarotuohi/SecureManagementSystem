@@ -6,6 +6,8 @@ import com.aaro.securemanagementsystem.repo.OtherUserRepo;
 import com.aaro.securemanagementsystem.repo.UsersRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +22,7 @@ import java.util.UUID;
 
 @Service
 public class UserManagementService {
+    private static final Logger log = LoggerFactory.getLogger(UserManagementService.class);
 
     @Autowired
     private UsersRepo usersRepo;
@@ -43,7 +46,7 @@ public class UserManagementService {
             user.setName(req.getName());
             user.setCity(req.getCity());
             user.setOrganization(req.getOrganization());
-            user.setRole(req.getRole());
+            // No role model: ignore incoming role and leave null
             String rawPassword = (req.getPassword() == null || req.getPassword().isBlank())
                     ? UUID.randomUUID().toString().replace("-", "").substring(0, 12)
                     : req.getPassword();
@@ -55,6 +58,9 @@ public class UserManagementService {
             resp.setOurUsers(saved);
             resp.setStatusCode(200);
             resp.setMessage("User created successfully");
+            if (me != null) {
+                log.info("User {} created member {} in business {}", me.getEmail(), user.getEmail(), me.getBusiness() != null ? me.getBusiness().getId() : null);
+            }
         } catch (Exception e) {
             resp.setStatusCode(500);
             resp.setMessage("Error creating user: " + e.getMessage());
@@ -70,7 +76,7 @@ public class UserManagementService {
             OtherUserRepo ourUser = new OtherUserRepo();
             ourUser.setEmail(registrationRequest.getEmail());
             ourUser.setCity(registrationRequest.getCity());
-            ourUser.setRole(registrationRequest.getRole());
+            // No roles in the system
             ourUser.setOrganization(registrationRequest.getOrganization());
             ourUser.setName(registrationRequest.getName());
             ourUser.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
@@ -79,6 +85,7 @@ public class UserManagementService {
                 resp.setOurUsers((ourUsersResult));
                 resp.setMessage("User Saved Successfully");
                 resp.setStatusCode(200);
+                log.info("User registered: {}", ourUser.getEmail());
             }
 
         }catch (Exception e){
@@ -217,7 +224,7 @@ public class UserManagementService {
                 existingUser.setEmail(updatedUser.getEmail());
                 existingUser.setName(updatedUser.getName());
                 existingUser.setCity(updatedUser.getCity());
-                existingUser.setRole(updatedUser.getRole());
+                // No roles in the system
                 existingUser.setOrganization(updatedUser.getOrganization());
 
                 // Check if password is present in the request

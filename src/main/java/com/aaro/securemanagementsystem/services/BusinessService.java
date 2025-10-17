@@ -6,6 +6,8 @@ import com.aaro.securemanagementsystem.repo.BusinessRepo;
 import com.aaro.securemanagementsystem.repo.OtherUserRepo;
 import com.aaro.securemanagementsystem.repo.UsersRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.util.Optional;
 
 @Service
 public class BusinessService {
+    private static final Logger log = LoggerFactory.getLogger(BusinessService.class);
     @Autowired
     private BusinessRepo businessRepo;
     @Autowired
@@ -30,11 +33,6 @@ public class BusinessService {
                 return res;
             }
             Optional<OtherUserRepo> currentOpt = usersRepo.findByEmail(authCheck.getName());
-            if (currentOpt.isEmpty() || currentOpt.get().getRole() == null || !"ADMIN".equalsIgnoreCase(currentOpt.get().getRole())) {
-                res.setStatusCode(403);
-                res.setMessage("Forbidden: Only admins can create a business.");
-                return res;
-            }
             if (req.getName() == null || req.getName().isEmpty()) {
                 res.setStatusCode(400);
                 res.setMessage("Business name is required");
@@ -48,6 +46,8 @@ public class BusinessService {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             Optional<OtherUserRepo> current = usersRepo.findByEmail(auth.getName());
             current.ifPresent(u -> { u.setBusiness(saved); usersRepo.save(u); });
+
+            log.info("User {} created business '{}' (id={})", auth.getName(), saved.getName(), saved.getId());
 
             res.setStatusCode(200);
             res.setMessage("Business created");

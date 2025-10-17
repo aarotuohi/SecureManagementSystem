@@ -39,14 +39,11 @@ public class SecurityConfig {
         .authorizeHttpRequests(request-> request.requestMatchers("/auth/**", "/public/**").permitAll()
             .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
+            // No role-based guards; any authenticated user can access these endpoints
+            .requestMatchers("/admin/**", "/manager/**", "/developer/**", "/user/**", "/adminuser/**").authenticated()
             .requestMatchers(HttpMethod.POST, "/business/**").authenticated()
             .requestMatchers(HttpMethod.GET, "/business/**").authenticated()
-            .requestMatchers("/manager/**").hasAnyAuthority("MANAGER", "ADMIN")
-            .requestMatchers("/developer/**").hasAnyAuthority("DEVELOPER", "ADMIN")
-            .requestMatchers("/user/**").hasAnyAuthority("USER")
-            .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
-                        .anyRequest().authenticated())
+            .anyRequest().authenticated())
                 .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(
                         jwtAuthFilter, UsernamePasswordAuthenticationFilter.class

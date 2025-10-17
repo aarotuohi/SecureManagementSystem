@@ -20,19 +20,17 @@ public class DeveloperManagementService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private static final String ROLE = "DEVELOPER";
-
     public JSONRequestResponse getAllDevelopers() {
         JSONRequestResponse res = new JSONRequestResponse();
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             OtherUserRepo me = usersRepo.findByEmail(auth.getName()).orElse(null);
             List<OtherUserRepo> devs = (me != null && me.getBusiness() != null)
-                ? usersRepo.findByRoleAndBusiness_Id(ROLE, me.getBusiness().getId())
-                : usersRepo.findByRole(ROLE);
+                ? usersRepo.findAllByBusiness_Id(me.getBusiness().getId())
+                : usersRepo.findAll();
             if (devs.isEmpty()) {
                 res.setStatusCode(404);
-                res.setMessage("No developers found");
+                res.setMessage("No members found");
             } else {
                 res.setOurUsersList(devs);
                 res.setStatusCode(200);
@@ -48,14 +46,18 @@ public class DeveloperManagementService {
     public JSONRequestResponse getDeveloperById(Integer id) {
         JSONRequestResponse res = new JSONRequestResponse();
         try {
-            Optional<OtherUserRepo> user = usersRepo.findById(id);
-            if (user.isPresent() && ROLE.equals(user.get().getRole())) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            OtherUserRepo me = usersRepo.findByEmail(auth.getName()).orElse(null);
+            Optional<OtherUserRepo> user = (me != null && me.getBusiness() != null)
+                ? usersRepo.findByIdAndBusiness_Id(id, me.getBusiness().getId())
+                : usersRepo.findById(id);
+            if (user.isPresent()) {
                 res.setOurUsers(user.get());
                 res.setStatusCode(200);
-                res.setMessage("Developer found");
+                res.setMessage("Member found");
             } else {
                 res.setStatusCode(404);
-                res.setMessage("Developer not found");
+                res.setMessage("Member not found");
             }
         } catch (Exception e) {
             res.setStatusCode(500);

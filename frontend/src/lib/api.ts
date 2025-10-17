@@ -1,5 +1,5 @@
 export type LoginRequest = { email: string; password: string }
-export type RegisterRequest = { name: string; email: string; password: string; city: string; organization?: string; role: 'ADMIN' | 'USER' }
+export type RegisterRequest = { name: string; email: string; password: string; city: string; organization?: string }
 
 export type Role = 'ADMIN' | 'USER' | 'MANAGER' | 'DEVELOPER' | 'TEAM_LEADER'
 
